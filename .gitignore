@@ -36,6 +36,10 @@ build/
 ## VS Code ###
 .vscode/
 
+# === Local Configuration Files ===
+# Local env config — real config ignored, see `.example` file
+src/main/resources/application.properties
+
 # === Java Artifacts ===
 
 ## Compiled class files
