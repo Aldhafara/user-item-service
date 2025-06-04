@@ -50,4 +50,24 @@ class UserRepositoryTest {
 
         assertEquals(0, itemRepository.findAll().size());
     }
+
+    @Test
+    void shouldFindUserByLogin() {
+        User user = new User("test_login");
+        user.setEncryptedPassword("secret");
+        userRepository.save(user);
+
+        Optional<User> found = userRepository.findByLogin("test_login");
+
+        assertTrue(found.isPresent());
+        assertEquals("test_login", found.get().getLogin());
+        assertEquals("secret", found.get().getPassword());
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalWhenLoginNotFound() {
+        Optional<User> found = userRepository.findByLogin("nonexistent_login");
+
+        assertTrue(found.isEmpty());
+    }
 }
