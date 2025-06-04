@@ -3,6 +3,8 @@ package com.aldhafara.useritemservice.security;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,15 +22,15 @@ public class JwtTokenProviderTest {
     @Test
     void shouldGenerateAndValidateToken() {
         // given
-        String username = "testuser";
+        UUID userId = UUID.randomUUID();
 
         // when
-        String token = jwtTokenProvider.generateToken(username);
+        String token = jwtTokenProvider.generateToken(userId);
 
         // then
         assertNotNull(token);
         assertTrue(jwtTokenProvider.validateToken(token));
-        assertEquals(username, jwtTokenProvider.getUsernameFromToken(token));
+        assertEquals(userId, jwtTokenProvider.getUserIdFromToken(token));
     }
 
     @Test
