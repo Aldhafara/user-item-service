@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +34,8 @@ public class ItemIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        token = authHelper.registerAndLogin("user@test.com", "User1234");
+        String email = "user_" + UUID.randomUUID() + "@test.com";
+        token = authHelper.registerAndLogin(email, "User1234");
     }
 
     @Test
@@ -55,7 +57,6 @@ public class ItemIntegrationTest {
             var request = new CreateItemRequest("Item " + i);
             restTemplate.postForEntity("/items", authHelper.entityWithAuth(request, token), CreateItemRequest.class);
         }
-
         var response = restTemplate.exchange(
                 "/items?page=0&size=10",
                 HttpMethod.GET,

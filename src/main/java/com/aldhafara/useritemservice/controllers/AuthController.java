@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,10 +36,13 @@ public class AuthController {
                     ),
                     @ApiResponse(responseCode = "409",
                             description = "Login already in use"
+                    ),
+                    @ApiResponse(responseCode = "400",
+                            description = "Invalid login or password"
                     )
             })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> register(@RequestBody @Valid AuthRequest request) {
         try {
             authService.register(request.login(), request.password());
             return ResponseEntity.noContent().build();

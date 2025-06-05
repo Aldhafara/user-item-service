@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,11 +18,24 @@ public class TestAuthHelper {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    public ResponseEntity<Void> register(String login, String password) {
+        var request = new AuthRequest(login, password);
+        return restTemplate.postForEntity("/register", request, Void.class);
+    }
+
+
     public String registerAndLogin(String login, String password) {
         var request = new AuthRequest(login, password);
-        restTemplate.postForEntity("/register", request, Void.class);
+        var registerResponse = restTemplate.postForEntity("/register", request, String.class);
+        if (!registerResponse.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Register failed: " + registerResponse.getBody());
+        }
 
         var loginResponse = restTemplate.postForEntity("/login", request, AuthResponse.class);
+        if (!loginResponse.getStatusCode().is2xxSuccessful() || loginResponse.getBody() == null) {
+            throw new RuntimeException("Login failed: " + loginResponse.getBody());
+        }
+
         return loginResponse.getBody().token();
     }
 
