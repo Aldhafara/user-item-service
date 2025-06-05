@@ -30,7 +30,7 @@ Dane każdego użytkownika są odseparowane – użytkownik widzi tylko swoje za
 ## Technologie
 
 - Java 21
-- Spring Boot 3.5.0
+- Spring Boot 3.2.5
 - Spring Security
 - Spring Data JPA (Hibernate)
 - MySQL

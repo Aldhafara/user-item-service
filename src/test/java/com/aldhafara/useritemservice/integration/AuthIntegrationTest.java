@@ -40,14 +40,14 @@ public class AuthIntegrationTest {
         restTemplate.postForEntity("/register", request, Void.class);
 
         var badLogin = new AuthRequest("user2@test.com", "WrongPass");
-        var response = restTemplate.postForEntity("/login", badLogin, String.class);
+        var response = restTemplate.postForEntity("/login", badLogin, AuthResponse.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
     @Test
     void shouldReturn401ForNonexistentUser() {
-        var response = restTemplate.postForEntity("/login", new AuthRequest("nosuchuser@test.com", "Pass123"), String.class);
+        var response = restTemplate.postForEntity("/login", new AuthRequest("nosuchuser@test.com", "Pass123"), AuthResponse.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }

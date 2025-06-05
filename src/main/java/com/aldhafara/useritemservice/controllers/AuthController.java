@@ -72,7 +72,7 @@ public class AuthController {
             String token = authService.authenticate(request.login(), request.password());
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (InvalidCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }

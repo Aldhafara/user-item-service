@@ -90,6 +90,5 @@ class AuthControllerTest {
 
         // then
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertEquals("Invalid credentials", response.getBody());
     }
 }
