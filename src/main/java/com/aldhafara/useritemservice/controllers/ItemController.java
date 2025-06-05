@@ -1,0 +1,101 @@
+package com.aldhafara.useritemservice.controllers;
+
+import com.aldhafara.useritemservice.dto.CreateItemRequest;
+import com.aldhafara.useritemservice.dto.ItemResponse;
+import com.aldhafara.useritemservice.entities.User;
+import com.aldhafara.useritemservice.services.ItemService;
+import com.aldhafara.useritemservice.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/items")
+public class ItemController {
+
+    private final ItemService itemService;
+    private final UserService userService;
+
+    @Autowired
+    public ItemController(ItemService itemService, UserService userService) {
+        this.itemService = itemService;
+        this.userService = userService;
+    }
+
+    @Operation(summary = "Create a new item",
+            responses = {
+                    @ApiResponse(responseCode = "204",
+                            description = "Item created successfull"
+                    ),
+                    @ApiResponse(responseCode = "401",
+                            description = "You have not provided an authentication token, the one provided has expired, was revoked or is not authentic"
+                    )
+            })
+    @PostMapping
+    public ResponseEntity<Void> createItem(@RequestBody CreateItemRequest request,
+                                           Principal principal) {
+        User user = getAuthenticatedUser(principal);
+        itemService.createItemForUser(user, request.name());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get a list of current user's items",
+            responses = {
+                    @ApiResponse(responseCode = "200",
+                            description = "Get a list of current user's items",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "array",
+                                            implementation = ItemResponse.class),
+                                    examples = @ExampleObject(
+                                            value = "[{\"id\": \"6210b1a3-2499-446d-a687-cce010a49864\", \"name\": \"My item\"}," +
+                                                    "{\"id\": \"a68a558f-3736-48c7-bab0-ab4b0872b1a4\", \"name\": \"My other item\"}]"
+                                    )
+                            )
+
+                    ),
+                    @ApiResponse(responseCode = "401",
+                            description = "You have not provided an authentication token, the one provided has expired, was revoked or is not authentic"
+                    )
+            })
+    @GetMapping
+    public ResponseEntity<List<ItemResponse>> getItems(
+            Principal principal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
+    ) {
+        User user = getAuthenticatedUser(principal);
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<ItemResponse> itemPage = itemService.getItemsForUser(user, pageRequest)
+                .map(item -> new ItemResponse(item.getId(), item.getName()));
+
+        return ResponseEntity.ok(itemPage.getContent());
+    }
+
+    private User getAuthenticatedUser(Principal principal) {
+        UUID userId = UUID.fromString(principal.getName());
+        return userService.findById(userId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId)
+        );
+    }
+}

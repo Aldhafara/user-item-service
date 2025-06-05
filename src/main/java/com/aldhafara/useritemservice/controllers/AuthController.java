@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication")
@@ -55,7 +53,7 @@ public class AuthController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(
-                                            type = "string",
+                                            implementation = AuthResponse.class,
                                             example = "{ \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJyb2xlIjoiU3R1ZGVudCJ9.IxBkuQHrrwJrc8_IA5DPdGhBKx43iYsricXKXUQt_8o\" }"
                                     )
                             )
