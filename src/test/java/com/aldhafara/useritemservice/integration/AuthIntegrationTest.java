@@ -22,7 +22,7 @@ public class AuthIntegrationTest {
 
     @Test
     void shouldRegisterAndLoginSuccessfully() {
-        var request = new AuthRequest("user@test.com", "Pass123");
+        var request = new AuthRequest("user1@test.com", "Pass123");
 
         var registerResponse = restTemplate.postForEntity("/register", request, Void.class);
         assertEquals(HttpStatus.NO_CONTENT, registerResponse.getStatusCode());
