@@ -2,27 +2,26 @@ package com.aldhafara.useritemservice.integration;
 
 import com.aldhafara.useritemservice.dto.AuthRequest;
 import com.aldhafara.useritemservice.dto.AuthResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestComponent;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 
-@Component
-@Profile("test")
+@TestComponent
 public class TestAuthHelper {
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    private final TestRestTemplate restTemplate;
+
+    public TestAuthHelper(TestRestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public ResponseEntity<Void> register(String login, String password) {
         var request = new AuthRequest(login, password);
         return restTemplate.postForEntity("/register", request, Void.class);
     }
-
 
     public String registerAndLogin(String login, String password) {
         var request = new AuthRequest(login, password);
@@ -54,4 +53,3 @@ public class TestAuthHelper {
         return new HttpEntity<>(headersWithToken(token));
     }
 }
-

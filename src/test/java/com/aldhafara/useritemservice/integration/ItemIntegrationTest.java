@@ -27,13 +27,13 @@ public class ItemIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
     private TestAuthHelper authHelper;
 
     private String token;
 
     @BeforeEach
     void setUp() {
+        authHelper = new TestAuthHelper(restTemplate);
         String email = "user_" + UUID.randomUUID() + "@test.com";
         token = authHelper.registerAndLogin(email, "User1234");
     }
