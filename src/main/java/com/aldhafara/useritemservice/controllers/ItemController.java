@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -32,11 +33,15 @@ import java.util.UUID;
 @RequestMapping("/items")
 public class ItemController {
 
+    private final int defaultPageSize;
     private final ItemService itemService;
     private final UserService userService;
 
     @Autowired
-    public ItemController(ItemService itemService, UserService userService) {
+    public ItemController(@Value("${pagination.defaultSize}") int defaultPageSize,
+                          ItemService itemService,
+                          UserService userService) {
+        this.defaultPageSize = defaultPageSize;
         this.itemService = itemService;
         this.userService = userService;
     }
@@ -81,11 +86,13 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<List<ItemResponse>> getItems(
             Principal principal,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
         User user = getAuthenticatedUser(principal);
-        PageRequest pageRequest = PageRequest.of(page, size);
+        int effectivePage = page != null ? page : 0;
+        int effectiveSize = size != null ? size : defaultPageSize;
+        PageRequest pageRequest = PageRequest.of(effectivePage, effectiveSize);
         Page<ItemResponse> itemPage = itemService.getItemsForUser(user, pageRequest)
                 .map(item -> new ItemResponse(item.getId(), item.getName()));
 

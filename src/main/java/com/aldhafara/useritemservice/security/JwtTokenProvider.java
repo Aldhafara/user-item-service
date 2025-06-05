@@ -9,6 +9,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -21,11 +22,16 @@ public class JwtTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_IN_MS = 600_000;
+
+    private final long expirationInMs;
+
+    public JwtTokenProvider(@Value("${security.jwt.expirationMs}") long expirationInMs) {
+        this.expirationInMs = expirationInMs;
+    }
 
     public String generateToken(UUID userId) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_IN_MS);
+        Date expiryDate = new Date(now.getTime() + expirationInMs);
 
         return Jwts.builder()
                 .setSubject(userId.toString())

@@ -16,7 +16,7 @@ public class JwtTokenProviderTest {
 
     @BeforeEach
     void setUp() {
-        jwtTokenProvider = new JwtTokenProvider();
+        jwtTokenProvider = new JwtTokenProvider(1000);
     }
 
     @Test
@@ -40,5 +40,19 @@ public class JwtTokenProviderTest {
 
         // then
         assertFalse(jwtTokenProvider.validateToken(invalidToken));
+    }
+
+    @Test
+    void shouldRejectExpiredToken() throws InterruptedException {
+        // given
+        JwtTokenProvider shortLivedTokenProvider = new JwtTokenProvider(10);
+        UUID userId = UUID.randomUUID();
+        String token = shortLivedTokenProvider.generateToken(userId);
+
+        // when
+        Thread.sleep(20);
+
+        // then
+        assertFalse(shortLivedTokenProvider.validateToken(token));
     }
 }

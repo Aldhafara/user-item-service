@@ -7,6 +7,7 @@ import com.aldhafara.useritemservice.entities.User;
 import com.aldhafara.useritemservice.services.ItemService;
 import com.aldhafara.useritemservice.services.UserService;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ class ItemControllerTest {
 
     private final ItemService itemService = mock(ItemService.class);
     private final UserService userService = mock(UserService.class);
-    private final ItemController controller = new ItemController(itemService, userService);
+    private final ItemController controller = new ItemController(3, itemService, userService);
 
     private final User testUser = new User("login");
     private final UUID userId = UUID.randomUUID();
@@ -86,5 +87,24 @@ class ItemControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
         assertTrue(ex.getMessage().contains(userId.toString()));
+    }
+
+    @Test
+    void shouldUseDefaultPageSizeWhenSizeNotProvided() {
+        // given
+        when(userService.findById(userId)).thenReturn(Optional.of(testUser));
+        when(itemService.getItemsForUser(eq(testUser), any(PageRequest.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        // when
+        ResponseEntity<List<ItemResponse>> response = controller.getItems(principal, 0, null);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        ArgumentCaptor<PageRequest> pageRequestCaptor = ArgumentCaptor.forClass(PageRequest.class);
+        verify(itemService).getItemsForUser(eq(testUser), pageRequestCaptor.capture());
+
+        assertEquals(3, pageRequestCaptor.getValue().getPageSize());
     }
 }
