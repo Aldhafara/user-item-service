@@ -20,11 +20,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Install dependencies (without tests)
-        run: mvn install -DskipTests
+      - name: Clean project
+        run: mvn clean
 
       - name: Run tests
-        run: mvn test
+        run: mvn test -Dspring.profiles.active=test
 
       - name: Upload test results on failure
         if: failure()
